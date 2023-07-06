@@ -11,7 +11,7 @@ if [ !ping -c 8.8.8.8 > /dev/null ]; then
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
 fi
 
-if [ -d "/sys/firmware/efi " ]; then
+if [ -d "/sys/firmware/efi" ]; then
 	efi = true
 else
 	efi = false
@@ -56,7 +56,7 @@ do
 	umount /mnt
 done
 
-if [ !windows ]; then
+if [ true ]; then
 	parted -s /dev/$Disk mklabel gpt
 	parted -s /dev/$Disk mkpart primary 0% 256MB
 	mkfs.fat -F 32 /dev/${Disk}1
