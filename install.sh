@@ -22,10 +22,7 @@ if [ true ] then
 	mount -m /dev/${Disk}3 /mnt
 	mount -m /dev/${Disk}2 /mnt/home
 	mount -m /dev/${Disk}1 /mnt/boot
-else
-	echo "No current functionality to install alongside windows"
-	echo "Aborting"
-	return
+
 fi
 
 echo "What type of installation do you want?"
