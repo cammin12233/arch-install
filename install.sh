@@ -64,10 +64,10 @@ if [ !windows ]; then
 	mkfs.fat -F 32 /dev/${Disk}1
 
 	parted -s /dev/$Disk mkpart primary 257MB 5140GB
-	mkfs.ext4 /dev/${Disk}1
+	mkfs.ext4 /dev/${Disk}2
 
 	parted -s /dev/$Disk mkpart primary 5398MB 100%
-	mkfs.ext4 /dev/${Disk}2
+	mkfs.ext4 /dev/${Disk}3
 else
 	echo "No current functionality to install alongside windows"
 	echo "Aborting"
