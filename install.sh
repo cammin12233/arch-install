@@ -1,11 +1,11 @@
 #!/usr/bin/bash
 
-if [ ! ping -c 8.8.8.8 > /dev/null  ]; then
+if [ ! ping -c 8.8.8.8 > /dev/null ] then
 	NetworkDevice = $(iw dev > /dev/null)
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
 fi
 
-if [ -d "/sys/firmware/efi/efivars" ]; then
+if [ -d "/sys/firmware/efi/efivars" ] then
 	efi=true
 else
 	efi=false
@@ -25,17 +25,17 @@ umount /mnt
 for parition in "${partitions}"
 do
 	mount /dev/$partition /mnt
-	if [ -d "/mnt/windows/system32" ]; then
+	if [ -d "/mnt/windows/system32" ] then
 		echo "Windows detected"
 		while true; do
 			echo "Do you wish to install archlinux alongside windows? "
 			echo -n "[N/Y]: "
 			read Input
 
-			if [$Input == "N"]; then
+			if [$Input == "N"] then
 				echo "Will remove"
 				break break
-			elif [$Input == "Y"]; then
+			elif [$Input == "Y"] then
 				echo "Will install alongside windows"
 				windows=true
 				break break
@@ -48,7 +48,7 @@ do
 	umount /mnt
 done
 
-if [ $efi ]; then
+if [ $efi ] then
 	Var=0
 else
 	Var=1
@@ -85,11 +85,13 @@ read InstallationType
 
 pacstrap /mnt base linux linux-firmware bash-completion base-devel
 
-if [ $InstallationType == "" ] || [ $InstallationType == 0 ]; then
+if [ $InstallationType == "" ] || [ $InstallationType == 0 ] then
 	GUI=true
 	Internet=true
+
 elif [ $InstallationType == "1" ] then
 	GUI=true
+
 elif [ $InstallationType == "2" ] then
 	Internet=true
 fi
