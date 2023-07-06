@@ -18,11 +18,11 @@ echo "What storage deivce do you want to install arch on?"
 lsblk -o NAME,SIZE --nodeps
 read Disk
 
-partitons = ($(lsblk -o NAME "/dev/$Disk" | grep -E "${disk}[0-9]+"))
+partitions = ($(lsblk -o NAME "/dev/$Disk" | grep -E "${Disk}[0-9]+"))
 
 windows = false
 umount /mnt
-for parition in "${partitons}" do
+for parition in "${partitions}" do
 	mount /dev/$partition /mnt
 	if [-d "/mnt/windows/system32"] then
 		v = true
