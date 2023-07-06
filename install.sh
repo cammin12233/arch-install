@@ -1,15 +1,15 @@
 #!/usr/bin/bash
 
-connected = cat < /dev/null > /dev/tcp/8.8.8.8/53; echo $?
+connected=cat < /dev/null > /dev/tcp/8.8.8.8/53; echo $?
 
-if [!ping -c 1 8.8.8.8 > /dev/null]; then
+if [ !ping -c 1 8.8.8.8 > /dev/null ]; then
 	echo "What is your Network Name?"
 	read NetworkName
 	
 	echo "What is your Network Password?"
 	read NetworkPassword
 	
-	NetworkDevice = iw dev > /dev/null
+	NetworkDevice = $(iw dev > /dev/null)
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
 fi
 
@@ -20,7 +20,7 @@ read Disk
 
 partitions=($(lsblk NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
-windows = false
+windows=false
 umount /mnt
 for parition in "${partitions}" do
 	mount /dev/$partition /mnt
