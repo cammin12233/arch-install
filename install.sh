@@ -21,7 +21,7 @@ read Disk
 partitions=($(lsblk -o NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
 windows=false
-umount /mnt > /dev/null
+umount /mnt
 for parition in "${partitions}"
 do
 	mount /dev/$partition /mnt
@@ -48,26 +48,23 @@ do
 	umount /mnt
 done
 
-if [ !$efi ]; then
-	Var=1
-else
+if [ $efi ]; then
 	Var=0
+else
+	Var=1
 fi
 
 if [ !$windows ]; then
 	Var=Var+2048
 	parted -s /dev/$Disk mklabel gpt
-	if [ !$efi ]; then
-		parted -s /dev/$Disk mkpart primary 0MB 1MB
-		parted -s /dev/$Disk set 1 boot on
-	fi 
-	parted -s /dev/$Disk mkpart primary fat32 ${0+$Var}MB ${256+$Var}MB
-	parted -s /dev/$Disk mkpart primary ext4 ${257+$Var}MB ${5376+$Var}MB
-	parted -s /dev/$Disk mkpart primary ext4 ${5376+$Var}MB 100%
+	parted -s /dev/$Disk mkpart primary fat32 0%	256MB
+	parted -s /dev/$Disk mkpart primary ext4 257MB 5377MB
+	parted -s /dev/$Disk mkpart primary ext4 5378MB 100%
+	
 	echo "mounting filesystem"
-	mount -m /dev/${Disk}${3+$Var-2048} /mnt
-	mount -m /dev/${Disk}${2+$Var-2048} /mnt/home
-	mount -m /dev/${Disk}${1+$Var-2048} /mnt/boot
+	mount -m /dev/${Disk}3 /mnt
+	mount -m /dev/${Disk}2 /mnt/home
+	mount -m /dev/${Disk}1 /mnt/boot
 else
 	echo "No current functionality to install alongside windows"
 	echo "Aborting"
@@ -172,13 +169,9 @@ arch-chroot /mnt /bin/bash -c "mkinitcpio -P"
 echo "Installing Grub"
 pacstrap /mnt grub
 
-if [ $efi ]; then
-	echo "Installing for efi"
-	pacstrap /mnt efibootmgr
+echo "Installing grub for efi"
+pacstrap /mnt efibootmgr
 
-	grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
-else
-	grub-install --target=i386 /dev/$Disk
-fi
+grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
 
 echo "Archlinux sucessfully installed"
