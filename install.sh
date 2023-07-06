@@ -2,7 +2,7 @@
 
 connected = cat < /dev/null > /dev/tcp/8.8.8.8/53; echo $?
 
-if [!ping -c 1 8.8.8.8 > /dev/nill]; then
+if [!ping -c 1 8.8.8.8 > /dev/null]; then
 	echo "What is your Network Name?"
 	read NetworkName
 	
@@ -47,7 +47,7 @@ for parition in "${partitions}" do
 	umount /mnt
 done
 
-if ![windows] then
+if [!windows] then
 	parted -s /dev/$Disk mklabel gpt
 	parted -s /dev/$Disk mkpart primary 0% 256MB
 	mkfs.fat -F 32 /dev/{$Disk}1
@@ -84,7 +84,7 @@ read InstallationType
 
 pacstrap /mnt base linux linux-firmware bash-completion base-devel
 
-if [$InstallationType == "" || $InstallationType == 0]; then
+if [$InstallationType == ""] || [$InstallationType == 0]; then
 	GUI = true
 	Internet = true
 elif [$InstallationType == "1"] then
