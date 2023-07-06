@@ -25,7 +25,7 @@ umount /mnt
 for parition in "${partitions}"
 do
 	mount /dev/$partition /mnt
-	if [-d "/mnt/windows/system32"] then
+	if [-d "/mnt/windows/system32"]; then
 		v = true
 		echo "Windows detected"
 		while [ $v ] do
@@ -33,10 +33,10 @@ do
 			echo -n "[N/Y]: "
 			read Input
 
-			if [$Input == "N"] then
+			if [$Input == "N"]; then
 				echo "Will remove"
 				v = false
-			elif [$Input == "Y"] then
+			elif [$Input == "Y"]; then
 				echo "Will install alongside windows"
 				windows = true
 			else
@@ -48,7 +48,7 @@ do
 	umount /mnt
 done
 
-if [!windows] then
+if [!windows]; then
 	parted -s /dev/$Disk mklabel gpt
 	parted -s /dev/$Disk mkpart primary 0% 256MB
 	mkfs.fat -F 32 /dev/{$Disk}1
@@ -88,9 +88,9 @@ pacstrap /mnt base linux linux-firmware bash-completion base-devel
 if [$InstallationType == ""] || [$InstallationType == 0]; then
 	GUI = true
 	Internet = true
-elif [$InstallationType == "1"] then
+elif [$InstallationType == "1"]; then
 	GUI = true
-elif [$InstallationType == "2"] then
+elif [$InstallationType == "2"]; then
 	Internet = true
 fi
 
