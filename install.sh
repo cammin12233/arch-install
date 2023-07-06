@@ -129,7 +129,7 @@ fi
 
 if [ "$GUI" == true ]; then
 	echo "Enabling GUI"
-	arch-chroot /mnt /bin/bash -c "systemctl enable Lightdm.service"
+	arch-chroot /mnt /bin/bash -c "systemctl enable lightdm.service"
 fi
 
 echo "$Name ALL=(ALL:ALL): All" >> /mnt/etc/sudoers
