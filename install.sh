@@ -86,12 +86,12 @@ read InstallationType
 pacstrap /mnt base linux linux-firmware bash-completion base-devel
 
 if [ $InstallationType == "" ] || [ $InstallationType == 0 ]; then
-	GUI = true
-	Internet = true
+	GUI=true
+	Internet=true
 elif [ $InstallationType == "1" ]; then
-	GUI = true
+	GUI=true
 elif [ $InstallationType == "2" ]; then
-	Internet = true
+	Internet=true
 fi
 
 if [ $GUI ] then
