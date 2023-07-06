@@ -2,18 +2,26 @@
 
 connected=cat < /dev/null > /dev/tcp/8.8.8.8/53; echo $?
 
-if [ !ping -c 1 8.8.8.8 > /dev/null ]; then
-	echo "What is your Network Name?"
-	read NetworkName
+echo "What is your Network Name?"
+read NetworkName
 	
-	echo "What is your Network Password?"
-	read NetworkPassword
-	
+echo "What is your Network Password?"
+read NetworkPassword
+
+if [ !ping -c 8.8.8.8 > /dev/null ]; then
 	NetworkDevice = $(iw dev > /dev/null)
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
 fi
 
-echo "NOTICE: Network Connected"
+if [ -d "/sys/firmware/efi " ]; then
+	efi = true
+else
+	efi = false
+fi
+
+
+
+echo "Network Connected"
 echo "What storage deivce do you want to install arch on?"
 lsblk -o NAME,SIZE --nodeps
 read Disk
@@ -25,10 +33,11 @@ umount /mnt
 for parition in "${partitions}"
 do
 	mount /dev/$partition /mnt
-	if [-d "/mnt/windows/system32"]; then
+	if [ -d "/mnt/windows/system32" ]; then
 		v = true
 		echo "Windows detected"
-		while [ $v ] do
+		
+		while [ $v ]; do
 			echo "Do you wish to install archlinux alongside windows? "
 			echo -n "[N/Y]: "
 			read Input
@@ -43,12 +52,13 @@ do
 				echo "Invalid input"
 			fi
 		done
+
 		break
 	fi
 	umount /mnt
 done
 
-if [!windows]; then
+if [ !windows ]; then
 	parted -s /dev/$Disk mklabel gpt
 	parted -s /dev/$Disk mkpart primary 0% 256MB
 	mkfs.fat -F 32 /dev/{$Disk}1
@@ -85,16 +95,16 @@ read InstallationType
 
 pacstrap /mnt base linux linux-firmware bash-completion base-devel
 
-if [$InstallationType == ""] || [$InstallationType == 0]; then
+if [ $InstallationType == "" ] || [ $InstallationType == 0 ]; then
 	GUI = true
 	Internet = true
-elif [$InstallationType == "1"]; then
+elif [ $InstallationType == "1" ]; then
 	GUI = true
-elif [$InstallationType == "2"]; then
+elif [ $InstallationType == "2" ]; then
 	Internet = true
 fi
 
-if [$GUI] then
+if [ $GUI ] then
 	pacstrap /mnt lightdm lightdm-gtk-greeter
 	echo "What Desktop Enviroment do you want?"
 	echo "
@@ -105,18 +115,18 @@ if [$GUI] then
 "
 	echo -n "Default [0]: "
 	read DE
-	if [$DE == "0"] || [$DE == ""]; then
+	if [ $DE == "0" ] || [ $DE == "" ]; then
 		pacstrap /mnt plasma
-	elif [$DE == "1"]; then
+	elif [ $DE == "1" ]; then
 		pacstrap /mnt cinnamon
-	elif [$DE == "2"]; then
+	elif [ $DE == "2" ]; then
 		pacstrap /mnt mate
-	elif [$DE == "3"]; then
+	elif [ $DE == "3" ]; then
 		pacstrap /mnt xfce4
 	fi
 fi
 
-if [$Internet]; then
+if [ $Internet ]; then
 	pacstrap /mnt networkmanager
 fi
 
@@ -137,7 +147,7 @@ arch-chroot /mnt /bin/bash -c "useradd -m $Name"
 echo "Enter in {$Name}'s password"
 arch-chroot /mnt /bin/bash -c "passwd $Name"
 
-if [$Network]; then
+if [ $Network ]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
 	if [$NetworkPassword] && [$NetworkName]; then
@@ -147,7 +157,7 @@ if [$Network]; then
 	echo "Wifi sucessfully added"
 fi
 
-if [$GUI]; then
+if [ $GUI ]; then
 	echo "Enabling GUI"
 	arch-chroot /mnt /bin/bash -c "systemctl enable Lightdm.Service"
 fi
@@ -160,7 +170,7 @@ arch-chroot /mnt /bin/bash -c "mkinitcpio -P"
 echo "Installing Grub"
 pacstrap /mnt grub
 
-if [$efi]; then
+if [ $efi ]; then
 	echo "Installing for efi"
 	pacstrap /mnt efibootmgr
 
