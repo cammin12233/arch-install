@@ -110,7 +110,7 @@ arch-chroot /mnt /bin/bash -c "useradd -m $Name"
 echo "Enter in {$Name}'s password"
 arch-chroot /mnt /bin/bash -c "passwd $Name"
 
-if [ "$Network" == true]; then
+if [ "$Network" == true ]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
 	if [$NetworkPassword] && [$NetworkName]; then
@@ -122,7 +122,7 @@ fi
 
 if [ "$GUI" == true ]; then
 	echo "Enabling GUI"
-	arch-chroot /mnt /bin/bash -c "systemctl enable Lightdm.Service"
+	arch-chroot /mnt /bin/bash -c "systemctl enable Lightdm.service"
 fi
 
 echo "$Name ALL=(ALL:ALL): All" >> /mnt/etc/sudoers
@@ -136,7 +136,7 @@ pacstrap /mnt grub
 echo "Installing grub for efi"
 pacstrap /mnt efibootmgr
 
-arch-chroot /mnt /bin/bash "grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot"
-arch-chroot /mnt /bin/bash "grub-mkconfig -o /boot/grub/grub.cfg"
+arch-chroot /mnt grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
+arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "Archlinux sucessfully installed"
