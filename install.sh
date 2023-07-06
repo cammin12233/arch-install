@@ -26,8 +26,6 @@ if [ true ]; then
 fi
 
 echo "What type of installation do you want?"
-GUI=false
-Internet=false
 echo "
 [0]: Base + Gui + Internet
 [1]: Base + Gui
@@ -48,9 +46,12 @@ elif [ "$InstallationType" == "1" ]; then
 
 elif [ "$InstallationType" == "2" ]; then
 	Internet=true
+elif [ "$InstallationType" == "3" ]; then
+	GUI=false
+	Internet=false
 fi
 
-if [ "$GUI" ]; then
+if [ "$GUI" == true ]; then
 	pacstrap /mnt lightdm lightdm-gtk-greeter
 	echo "What Desktop Enviroment do you want?"
 	echo "
@@ -72,7 +73,7 @@ if [ "$GUI" ]; then
 	fi
 fi
 
-if [ "$Internet" ]; then
+if [ "$Internet" == true ]; then
 	pacstrap /mnt networkmanager firefox
 fi
 
@@ -89,7 +90,7 @@ arch-chroot /mnt /bin/bash -c "hwclock --systohc"
 echo "What do you want your computer's name to be?"
 echo -n "Default [Arch]: "
 read Arch
-if [ "$Arch" == ""]; then
+if [ "$Arch" == "" ]; then
 	Arch="Arch"
 fi
 
@@ -103,7 +104,7 @@ arch-chroot /mnt /bin/bash -c "useradd -m $Name"
 echo "Enter in {$Name}'s password"
 arch-chroot /mnt /bin/bash -c "passwd $Name"
 
-if [ "$Network" ]; then
+if [ "$Network" == true]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
 	if [$NetworkPassword] && [$NetworkName] then
@@ -113,7 +114,7 @@ if [ "$Network" ]; then
 fi
 
 
-if [ "$GUI" ]; then
+if [ "$GUI" == true ]; then
 	echo "Enabling GUI"
 	arch-chroot /mnt /bin/bash -c "systemctl enable Lightdm.Service"
 fi
