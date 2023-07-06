@@ -1,11 +1,5 @@
 #!/usr/bin/bash
 
-echo "What is your Network Name?"
-read NetworkName
-	
-echo "What is your Network Password?"
-read NetworkPassword
-
 if [ !ping -c 8.8.8.8 > /dev/null ]; then
 	NetworkDevice = $(iw dev > /dev/null)
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
@@ -66,19 +60,18 @@ if [ true ]; then
 
 	parted -s /dev/$Disk mkpart primary 5398MB 100%
 	mkfs.ext4 /dev/${Disk}3
+
+	echo "mounting filesystem"
+	mount -m /dev/${Disk}3 /mnt
+	mount -m /dev/${Disk}2 /mnt/home
+	mount -m /dev/${Disk}1 /mnt/boot
 else
 	echo "No current functionality to install alongside windows"
 	echo "Aborting"
 	return
 fi
 
-echo "Mounting filesystem"
-mount    /dev/${Disk}3 /mnt
-mount -m /dev/${disk}2 /mnt/home
-mount -m /dev/${disk}1 /mnt/boot
-
 echo "What type of installation do you want?"
-
 GUI = false
 Internet = false
 echo "
