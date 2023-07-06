@@ -15,10 +15,15 @@ echo "Partitioning, THIS IS IRREVERSABLE, CANCEL IMMIDETALLY IF YOU DONT WISH TO
 sleep 5
 if [ true ]; then
 	parted -s /dev/$Disk mklabel gpt
-	parted -s /dev/$Disk mkpart primary fat32 0% 256MB
-	parted -s /dev/$Disk mkpart primary ext4 256MB 5377MB
-	parted -s /dev/$Disk mkpart primary ext4 5377MB 100%
+	parted -s /dev/$Disk mkpart primary 0% 256MB
+	parted -s /dev/$Disk mkpart primary 256MB 5377MB
+	parted -s /dev/$Disk mkpart primary 5377MB 100%
 	
+	echo "Applying filesystems"
+	mkfs.fat -F 32 /dev/${Disk}1
+	mkfs.ext4 /dev/${Disk}2
+	mkfs.ext4 /dev/${Disk}3
+
 	echo "mounting filesystem"
 	mount -m /dev/${Disk}3 /mnt
 	mount -m /dev/${Disk}2 /mnt/home
