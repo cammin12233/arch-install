@@ -68,7 +68,7 @@ if [ !windows ]; then
 
 	parted -s /dev/$Disk mkpart primary 5398MB 100%
 	mkfs.ext4 /dev/{$Disk}2
-elif
+else
 	echo "No current functionality to install alongside windows"
 	echo "Aborting"
 	return
