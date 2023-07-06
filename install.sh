@@ -11,9 +11,8 @@ partitions=($(lsblk -o NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
 windows=false
 
-echo "Partitioning, THIS IS IRREVERSABLE, CANCEL IMMIDETALLY IF YOU DONT WISH TO CONTINUE"
-sleep 5
 if [ true ]; then
+	wipefs -a /dev/$Disk
 	parted -s /dev/$Disk mklabel gpt
 	parted -s /dev/$Disk mkpart primary 0% 256MB
 	parted -s /dev/$Disk mkpart primary 256MB 5377MB
@@ -87,10 +86,10 @@ echo "Generating fstab file"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "Doing base configuration"
-echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
+echo "en_US.UTF-8 UTF-8" > /mnt/etc/locale.gen
 arch-chroot /mnt /bin/bash -c "locale-gen"
-echo "en_US.UTF-8" >> /mnt/etc/locale.conf
-echo "keymap=US" >> /mnt/etc/vconsole.conf
+echo "en_US.UTF-8" > /mnt/etc/locale.conf
+echo "keymap=us" > /mnt/etc/vconsole.conf
 arch-chroot /mnt /bin/bash -c "hwclock --systohc"
 
 echo "What do you want your computer's name to be?"
@@ -107,15 +106,23 @@ read Name
 arch-chroot /mnt /bin/bash -c "useradd -m $Name"
 
 
-echo "Enter in {$Name}'s password"
+echo "Enter in ${Name}'s password"
 arch-chroot /mnt /bin/bash -c "passwd $Name"
 
 if [ "$Network" == true ]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
-	if [$NetworkPassword] && [$NetworkName]; then
-		arch-crhoot /mnt /bin/bash -c "nmcli device wifi connect $NetworkName password $NetworkPassword >> /dev/null"
+	
+	if [ ! $NetworkPassword] || [ ! $NetworkName]; then
+		echo "Enter network name"
+		echo -n "Network-Name: "
+		read NetworkName
+
+		echo "Enter network password"
+		echo -n "Network-Password: "
 	fi
+		arch-crhoot /mnt /bin/bash -c "nmcli device wifi connect $NetworkName password $NetworkPassword >> /dev/null"
+	
 	echo "Wifi sucessfully added"
 fi
 
