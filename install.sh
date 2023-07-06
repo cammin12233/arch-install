@@ -59,8 +59,7 @@ if [ !$windows ]; then
 	if [ !$efi ]; then
 		parted -s /dev/$Disk mkpart primary 0MB 1MB
 		parted -s /dev/$Disk set 1 boot on
-	fi
-	$offset = $offset + 
+	fi 
 	parted -s /dev/$Disk mkpart primary fat32 ${0+$Var}MB ${256+$Var}MB
 	parted -s /dev/$Disk mkpart primary ext4 ${257+$Var}MB ${5376+$Var}MB
 	parted -s /dev/$Disk mkpart primary ext4 ${5376+$Var}MB 100%
