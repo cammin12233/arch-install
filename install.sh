@@ -94,7 +94,7 @@ elif [ $InstallationType == "2" ]; then
 	Internet=true
 fi
 
-if [ $GUI ] then
+if [ $GUI ]; then
 	pacstrap /mnt lightdm lightdm-gtk-greeter
 	echo "What Desktop Enviroment do you want?"
 	echo "
