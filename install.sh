@@ -2,7 +2,7 @@
 
 connected = cat < /dev/null > /dev/tcp/8.8.8.8/53; echo $?
 
-if ![ping -c 1 8.8.8.8 > /dev/nill]; then
+if [!ping -c 1 8.8.8.8 > /dev/nill]; then
 	echo "What is your Network Name?"
 	read NetworkName
 	
@@ -13,16 +13,12 @@ if ![ping -c 1 8.8.8.8 > /dev/nill]; then
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
 fi
 
-if [$connected]
 echo "NOTICE: Network Connected"
 echo "What storage deivce do you want to install arch on?"
 lsblk -o NAME,SIZE --nodeps
 read Disk
 
-windows = false
-
 partitons = ($(lsblk -o NAME "/dev/$Disk" | grep -E "${disk}[0-9]+"))
-
 
 windows = false
 umount /mnt
