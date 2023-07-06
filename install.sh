@@ -40,7 +40,7 @@ echo "
 echo -n "Default [0]: "
 read InstallationType
 
-pacstrap /mnt base linux linux-firmware bash-completion base-devel
+pacstrap /mnt base linux linux-firmware bash-completion base-devel vim
 
 if [ "$InstallationType" == "" ] || [ "$InstallationType" == 0 ]; then
 	GUI=true
@@ -51,6 +51,7 @@ elif [ "$InstallationType" == "1" ]; then
 
 elif [ "$InstallationType" == "2" ]; then
 	Internet=true
+
 elif [ "$InstallationType" == "3" ]; then
 	GUI=false
 	Internet=false
@@ -124,7 +125,7 @@ if [ "$GUI" == true ]; then
 	arch-chroot /mnt /bin/bash -c "systemctl enable Lightdm.Service"
 fi
 
-echo "$Name (ALL:ALL): All" >> /mnt/etc/sudoers
+echo "$Name ALL=(ALL:ALL): All" >> /mnt/etc/sudoers
 
 echo "Building Kernal"
 arch-chroot /mnt /bin/bash -c "mkinitcpio -P"
