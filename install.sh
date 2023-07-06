@@ -65,9 +65,9 @@ if [ !$windows ]; then
 	parted -s /dev/$Disk mkpart primary ext4 ${257+$Var}MB ${5376+$Var}MB
 	parted -s /dev/$Disk mkpart primary ext4 ${5376+$Var}MB 100%
 	echo "mounting filesystem"
-	mount -m /dev/${Disk}${3+var} /mnt
-	mount -m /dev/${Disk}${2+var} /mnt/home
-	mount -m /dev/${Disk}${1+var} /mnt/boot
+	mount -m /dev/${Disk}${3+$Var-2048} /mnt
+	mount -m /dev/${Disk}${2+$Var-2048} /mnt/home
+	mount -m /dev/${Disk}${1+$Var-2048} /mnt/boot
 else
 	echo "No current functionality to install alongside windows"
 	echo "Aborting"
