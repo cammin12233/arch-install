@@ -61,13 +61,13 @@ done
 if [ !windows ]; then
 	parted -s /dev/$Disk mklabel gpt
 	parted -s /dev/$Disk mkpart primary 0% 256MB
-	mkfs.fat -F 32 /dev/{$Disk}1
+	mkfs.fat -F 32 /dev/${Disk}1
 
 	parted -s /dev/$Disk mkpart primary 257MB 5140GB
-	mkfs.ext4 /dev/{$Disk}1
+	mkfs.ext4 /dev/${Disk}1
 
 	parted -s /dev/$Disk mkpart primary 5398MB 100%
-	mkfs.ext4 /dev/{$Disk}2
+	mkfs.ext4 /dev/${Disk}2
 else
 	echo "No current functionality to install alongside windows"
 	echo "Aborting"
@@ -75,10 +75,9 @@ else
 fi
 
 echo "Mounting filesystem"
-mount    /dev/{Disk}3 /mnt
-mount -m /dev/{disk}2 /mnt/home
-mount -m /dev/{disk}1 /mnt/boot
-
+mount    /dev/${Disk}3 /mnt
+mount -m /dev/${disk}2 /mnt/home
+mount -m /dev/${disk}1 /mnt/boot
 
 echo "What type of installation do you want?"
 
@@ -174,7 +173,7 @@ if [ $efi ]; then
 	echo "Installing for efi"
 	pacstrap /mnt efibootmgr
 
-	grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=
+	grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
 fi
 
 echo "Archlinux sucessfully installed"
