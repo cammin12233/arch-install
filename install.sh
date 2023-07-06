@@ -39,18 +39,18 @@ read InstallationType
 
 pacstrap /mnt base linux linux-firmware bash-completion base-devel
 
-if [ $InstallationType == "" ] || [ $InstallationType == 0 ]; then
+if [ "$InstallationType" == "" ] || [ "$InstallationType" == 0 ]; then
 	GUI=true
 	Internet=true
 
-elif [ $InstallationType == "1" ]; then
+elif [ "$InstallationType" == "1" ]; then
 	GUI=true
 
-elif [ $InstallationType == "2" ]; then
+elif [ "$InstallationType" == "2" ]; then
 	Internet=true
 fi
 
-if [ $GUI ]; then
+if [ "$GUI" ]; then
 	pacstrap /mnt lightdm lightdm-gtk-greeter
 	echo "What Desktop Enviroment do you want?"
 	echo "
@@ -61,18 +61,18 @@ if [ $GUI ]; then
 "
 	echo -n "Default [0]: "
 	read DE
-	if [ $DE == "0" ] || [ $DE == "" ]; then
+	if [ "$DE" == "0" ] || [ "$DE" == "" ]; then
 		pacstrap /mnt plasma
-	elif [ $DE == "1" ]; then
+	elif [ "$DE" == "1" ]; then
 		pacstrap /mnt cinnamon
-	elif [ $DE == "2" ]; then
+	elif [ "$DE" == "2" ]; then
 		pacstrap /mnt mate
-	elif [ $DE == "3" ]; then
+	elif [ "$DE" == "3" ]; then
 		pacstrap /mnt xfce4
 	fi
 fi
 
-if [ $Internet ]; then
+if [ "$Internet" ]; then
 	pacstrap /mnt networkmanager firefox
 fi
 
@@ -89,8 +89,8 @@ arch-chroot /mnt /bin/bash -c "hwclock --systohc"
 echo "What do you want your computer's name to be?"
 echo -n "Default [Arch]: "
 read Arch
-if [ $Arch == ""]; then
-	Arch = "Arch"
+if [ "$Arch" == ""]; then
+	Arch="Arch"
 fi
 
 echo $Arch >> /mnt/etc/hostname
@@ -103,7 +103,7 @@ arch-chroot /mnt /bin/bash -c "useradd -m $Name"
 echo "Enter in {$Name}'s password"
 arch-chroot /mnt /bin/bash -c "passwd $Name"
 
-if [ $Network ]; then
+if [ "$Network" ]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
 	if [$NetworkPassword] && [$NetworkName] then
@@ -113,7 +113,7 @@ if [ $Network ]; then
 fi
 
 
-if [ $GUI ]; then
+if [ "$GUI" ]; then
 	echo "Enabling GUI"
 	arch-chroot /mnt /bin/bash -c "systemctl enable Lightdm.Service"
 fi
