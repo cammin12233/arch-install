@@ -14,9 +14,9 @@ windows=false
 if [ true ]; then
 	Var=Var+2048
 	parted -s /dev/$Disk mklabel gpt
-	parted -s /dev/$Disk mkpart primary fat32 0%	256MB
+	parted -s /dev/$Disk mkpart primary fat32 1MB	257MB
 	parted -s /dev/$Disk mkpart primary ext4 257MB 5377MB
-	parted -s /dev/$Disk mkpart primary ext4 5378MB 100%
+	parted -s /dev/$Disk mkpart primary ext4 5377MB 100%
 	
 	echo "mounting filesystem"
 	mount -m /dev/${Disk}3 /mnt
