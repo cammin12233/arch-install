@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-if [ ! ping -c 8.8.8.8 > /dev/null ] then
+if ![ ping -c 8.8.8.8 > /dev/null ] then
 	NetworkDevice = $(iw dev > /dev/null)
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
 fi
