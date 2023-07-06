@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-connected=cat < /dev/null > /dev/tcp/8.8.8.8/53; echo $?
-
 echo "What is your Network Name?"
 read NetworkName
 	
@@ -29,7 +27,7 @@ read Disk
 partitions=($(lsblk NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
 windows=false
-umount /mnt
+umount /mnt > /dev/null
 for parition in "${partitions}"
 do
 	mount /dev/$partition /mnt
