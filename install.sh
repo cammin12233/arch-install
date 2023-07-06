@@ -22,7 +22,6 @@ if [ true ] then
 	mount -m /dev/${Disk}3 /mnt
 	mount -m /dev/${Disk}2 /mnt/home
 	mount -m /dev/${Disk}1 /mnt/boot
-
 fi
 
 echo "What type of installation do you want?"
