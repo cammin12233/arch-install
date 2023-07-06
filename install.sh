@@ -1,11 +1,5 @@
 #!/usr/bin/bash
 
-if [ -d "/sys/firmware/efi/efivars" ] then
-	efi=true
-else
-	efi=false
-fi
-
 timedatectl
 
 echo "Network Connected"
@@ -42,12 +36,6 @@ do
 	fi
 	umount /mnt
 done
-
-if [ $efi ] then
-	Var=0
-else
-	Var=1
-fi
 
 if [ !$windows ]; then
 	Var=Var+2048
@@ -152,6 +140,7 @@ if [ $Network ] then
 	fi
 	echo "Wifi sucessfully added"
 fi
+
 
 if [ $GUI ] then
 	echo "Enabling GUI"
