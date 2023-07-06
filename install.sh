@@ -18,7 +18,7 @@ echo "What storage deivce do you want to install arch on?"
 lsblk -o NAME,SIZE --nodeps
 read Disk
 
-partitions=($(lsblk NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
+partitions=($(lsblk -o NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
 windows=false
 umount /mnt > /dev/null
@@ -55,7 +55,7 @@ if [ true ]; then
 	parted -s /dev/$Disk mkpart primary 0% 256MB
 	mkfs.fat -F 32 /dev/${Disk}1
 
-	parted -s /dev/$Disk mkpart primary 257MB 5140GB
+	parted -s /dev/$Disk mkpart primary 257MB 5GB
 	mkfs.ext4 /dev/${Disk}2
 
 	parted -s /dev/$Disk mkpart primary 5398MB 100%
