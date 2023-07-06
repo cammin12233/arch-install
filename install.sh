@@ -61,9 +61,9 @@ if [ !$windows ]; then
 		parted -s /dev/$Disk set 1 boot on
 	fi
 	$offset = $offset + 
-	parted -s /dev/$Disk mkpart primary fat32 ${0+$Var} ${256+$Var}
-	parted -s /dev/$Disk mkpart primary ext4 ${257+$Var} ${5376+$Var}
-	parted -s /dev/$Disk mkpart primary ext4 ${5376+$Var} 100%
+	parted -s /dev/$Disk mkpart primary fat32 ${0+$Var}MB ${256+$Var}MB
+	parted -s /dev/$Disk mkpart primary ext4 ${257+$Var}MB ${5376+$Var}MB
+	parted -s /dev/$Disk mkpart primary ext4 ${5376+$Var}MB 100%
 	echo "mounting filesystem"
 	mount -m /dev/${Disk}${3+var} /mnt
 	mount -m /dev/${Disk}${2+var} /mnt/home
