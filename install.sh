@@ -11,11 +11,12 @@ partitions=($(lsblk -o NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
 windows=false
 
+echo "Partitioning, THIS IS IRREVERSABLE, CANCEL IMMIDETALLY IF YOU DONT WISH TO CONTINUE"
+sleep 5
 if [ true ]; then
-	Var=Var+2048
 	parted -s /dev/$Disk mklabel gpt
-	parted -s /dev/$Disk mkpart primary fat32 1MB	257MB
-	parted -s /dev/$Disk mkpart primary ext4 257MB 5377MB
+	parted -s /dev/$Disk mkpart primary fat32 0% 256MB
+	parted -s /dev/$Disk mkpart primary ext4 256MB 5377MB
 	parted -s /dev/$Disk mkpart primary ext4 5377MB 100%
 	
 	echo "mounting filesystem"
