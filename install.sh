@@ -56,25 +56,18 @@ fi
 
 if [ !$windows ]; then
 	parted -s /dev/$Disk mklabel gpt
-	
 	if [ !$efi ]; then
 		parted -s /dev/$Disk mkpart primary 0MB 1MB
 		parted -s /dev/$Disk set 1 boot on
 	fi
-
-	parted -s /dev/$Disk mkpart primary ${0+$Var}MB 256MB
-	mkfs.fat -F 32 /dev/${Disk}1
-
-	parted -s /dev/$Disk mkpart primary ${257+$Var}MB 5GB
-	mkfs.ext4 /dev/${Disk}2
-
-	parted -s /dev/$Disk mkpart primary ${5398+$Var}MB 100%
-	mkfs.ext4 /dev/${Disk}3
-
+	$offset = $offset + 
+	parted -s /dev/$Disk mkpart primary fat32 ${0+$Var} ${256+$Var}
+	parted -s /dev/$Disk mkpart primary ext4 ${257+$Var} ${5376+$Var}
+	parted -s /dev/$Disk mkpart primary ext4 ${5376+$Var} 100%
 	echo "mounting filesystem"
-	mount -m /dev/${Disk}3 /mnt
-	mount -m /dev/${Disk}2 /mnt/home
-	mount -m /dev/${Disk}1 /mnt/boot
+	mount -m /dev/${Disk}${3+var} /mnt
+	mount -m /dev/${Disk}${2+var} /mnt/home
+	mount -m /dev/${Disk}${1+var} /mnt/boot
 else
 	echo "No current functionality to install alongside windows"
 	echo "Aborting"
