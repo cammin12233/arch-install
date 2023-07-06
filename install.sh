@@ -22,7 +22,8 @@ partitions=($(lsblk NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
 windows=false
 umount /mnt
-for parition in "${partitions}" do
+for parition in "${partitions}"
+do
 	mount /dev/$partition /mnt
 	if [-d "/mnt/windows/system32"] then
 		v = true
