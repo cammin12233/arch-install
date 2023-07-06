@@ -10,34 +10,8 @@ read Disk
 partitions=($(lsblk -o NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
 
 windows=false
-umount /mnt
-for parition in "${partitions}"
-do
-	mount /dev/$partition /mnt
-	if [ -d "/mnt/windows/system32" ] then
-		echo "Windows detected"
-		while true; do
-			echo "Do you wish to install archlinux alongside windows? "
-			echo -n "[N/Y]: "
-			read Input
 
-			if [$Input == "N"] then
-				echo "Will remove"
-				break break
-			elif [$Input == "Y"] then
-				echo "Will install alongside windows"
-				windows=true
-				break break
-			else
-				echo "Invalid input"
-			fi
-		done
-
-	fi
-	umount /mnt
-done
-
-if [ !$windows ]; then
+if [ true ] then
 	Var=Var+2048
 	parted -s /dev/$Disk mklabel gpt
 	parted -s /dev/$Disk mkpart primary fat32 0%	256MB
