@@ -55,6 +55,7 @@ else
 fi
 
 if [ !$windows ]; then
+	Var=Var+2048
 	parted -s /dev/$Disk mklabel gpt
 	if [ !$efi ]; then
 		parted -s /dev/$Disk mkpart primary 0MB 1MB
