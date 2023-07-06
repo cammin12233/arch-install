@@ -1,17 +1,17 @@
 #!/usr/bin/bash
 
-if [ !ping -c 8.8.8.8 > /dev/null ]; then
+if [ !{ping -c 8.8.8.8 > /dev/null} ]; then
 	NetworkDevice = $(iw dev > /dev/null)
 	iwctl device $NetworkDevice connect $NetworkName password $NetworkPassword
 fi
 
-if [ -d "/sys/firmware/efi" ]; then
-	efi = true
+if [ -d "/sys/firmware/efi/efivars" ]; then
+	efi=true
 else
-	efi = false
+	efi=false
 fi
 
-
+timedatectl
 
 echo "Network Connected"
 echo "What storage deivce do you want to install arch on?"
@@ -26,39 +26,49 @@ for parition in "${partitions}"
 do
 	mount /dev/$partition /mnt
 	if [ -d "/mnt/windows/system32" ]; then
-		v = true
 		echo "Windows detected"
-		
-		while [ $v ]; do
+		while true; do
 			echo "Do you wish to install archlinux alongside windows? "
 			echo -n "[N/Y]: "
 			read Input
 
 			if [$Input == "N"]; then
 				echo "Will remove"
-				v = false
+				break break
 			elif [$Input == "Y"]; then
 				echo "Will install alongside windows"
-				windows = true
+				windows=true
+				break break
 			else
 				echo "Invalid input"
 			fi
 		done
 
-		break
 	fi
 	umount /mnt
 done
 
-if [ true ]; then
+if [ !$efi ]; then
+	Var=1
+else
+	Var=0
+fi
+
+if [ !$windows ]; then
 	parted -s /dev/$Disk mklabel gpt
-	parted -s /dev/$Disk mkpart primary 0% 256MB
+	
+	if [ !$efi ]; then
+		parted -s /dev/$Disk mkpart primary 0MB 1MB
+		parted -s /dev/$Disk set 1 boot on
+	fi
+
+	parted -s /dev/$Disk mkpart primary ${0+$Var}MB 256MB
 	mkfs.fat -F 32 /dev/${Disk}1
 
-	parted -s /dev/$Disk mkpart primary 257MB 5GB
+	parted -s /dev/$Disk mkpart primary ${257+$Var}MB 5GB
 	mkfs.ext4 /dev/${Disk}2
 
-	parted -s /dev/$Disk mkpart primary 5398MB 100%
+	parted -s /dev/$Disk mkpart primary ${5398+$Var}MB 100%
 	mkfs.ext4 /dev/${Disk}3
 
 	echo "mounting filesystem"
@@ -72,8 +82,8 @@ else
 fi
 
 echo "What type of installation do you want?"
-GUI = false
-Internet = false
+GUI=false
+Internet=false
 echo "
 [0]: Base + Gui + Internet
 [1]: Base + Gui
@@ -105,7 +115,7 @@ if [ $GUI ]; then
 "
 	echo -n "Default [0]: "
 	read DE
-	if [ $DE == "0" ] || [ $DE == "" ]; then
+	if [ $DE == "0" ]; || [ $DE == "" ]; then
 		pacstrap /mnt plasma
 	elif [ $DE == "1" ]; then
 		pacstrap /mnt cinnamon
@@ -117,17 +127,27 @@ if [ $GUI ]; then
 fi
 
 if [ $Internet ]; then
-	pacstrap /mnt networkmanager
+	pacstrap /mnt networkmanager firefox
 fi
 
 echo "Generating fstab file"
 genfstab -u /mnt >> /mnt/etc/fstab
 
 echo "Doing base configuration"
-arch-chroot /mnt /bin/bash -c "echo 'en_US.UTF-8 UTF-9' >> /etc/locale.gen"
+echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
 arch-chroot /mnt /bin/bash -c "locale-gen"
-arch-chroot /mnt /bin/bash -c "echo 'en_US.UTF-8' >> /etc/locale.conf"
-arch-chroot /mnt /bin/bash -c "echo keymap=US >> /etc/vconsole.conf"
+echo "en_US.UTF-8" >> /mnt/etc/locale.conf
+echo "keymap=US" >> /mnt/etc/vconsole.conf
+arch-chroot /mnt /bin/bash -c "hwclock --systohc"
+
+echo "What do you want your computer's name to be?"
+echo -n "Default [Arch]: "
+read Arch
+if [ $Arch == ""]; then
+	Arch = "Arch"
+fi
+
+echo $Arch >> /mnt/etc/hostname
 
 echo "What is your user's name?"
 read Name
@@ -141,8 +161,7 @@ if [ $Network ]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
 	if [$NetworkPassword] && [$NetworkName]; then
-		arch-crhoot /mnt /bin/bash -c "
-		nmcli device wifi connect $NetworkName password $NetworkPassword >> /dev/null"
+		arch-crhoot /mnt /bin/bash -c "nmcli device wifi connect $NetworkName password $NetworkPassword >> /dev/null"
 	fi
 	echo "Wifi sucessfully added"
 fi
@@ -165,6 +184,8 @@ if [ $efi ]; then
 	pacstrap /mnt efibootmgr
 
 	grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
+else
+	grub-install --target=i386 /dev/$Disk
 fi
 
 echo "Archlinux sucessfully installed"
