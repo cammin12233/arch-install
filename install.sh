@@ -135,6 +135,7 @@ pacstrap /mnt grub
 echo "Installing grub for efi"
 pacstrap /mnt efibootmgr
 
-grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
+arch-chroot /mnt /bin/bash "grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot"
+arch-chroot /mnt /bin/bash "grub-mkconfig -o /boot/grub/grub.cfg"
 
 echo "Archlinux sucessfully installed"
