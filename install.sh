@@ -78,7 +78,7 @@ if [ "$Internet" == true ]; then
 fi
 
 echo "Generating fstab file"
-genfstab -u /mnt >> /mnt/etc/fstab
+genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "Doing base configuration"
 echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
@@ -107,7 +107,7 @@ arch-chroot /mnt /bin/bash -c "passwd $Name"
 if [ "$Network" == true]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
-	if [$NetworkPassword] && [$NetworkName] then
+	if [$NetworkPassword] && [$NetworkName]; then
 		arch-crhoot /mnt /bin/bash -c "nmcli device wifi connect $NetworkName password $NetworkPassword >> /dev/null"
 	fi
 	echo "Wifi sucessfully added"
