@@ -2,30 +2,45 @@
 
 timedatectl
 
+if [ -d "/sys/firmware/efivars" ]; then
+	efi=true
+fi
+
 echo "Network Connected"
 echo "What storage deivce do you want to install arch on?"
 lsblk -o NAME,SIZE --nodeps
 read Disk
 
-partitions=($(lsblk -o NAME /dev/$Disk | grep -E "{$Disk}[0-9]+"))
+echo "Paritioning"
 
-windows=false
-
-if [ true ]; then
+if true; then
 	wipefs -a /dev/$Disk
 	parted -s /dev/$Disk mklabel gpt
-	parted -s /dev/$Disk mkpart primary 0% 256MB
-	parted -s /dev/$Disk mkpart primary 256MB 5377MB
-	parted -s /dev/$Disk mkpart primary 5377MB 100%
-	
-	echo "Applying filesystems"
-	mkfs.fat -F 32 /dev/${Disk}1
-	mkfs.ext4 /dev/${Disk}2
-	mkfs.ext4 /dev/${Disk}3
 
-	echo "mounting filesystem"
-	mount -m /dev/${Disk}3 /mnt
-	mount -m /dev/${Disk}2 /mnt/home
+	if $efi; then
+		parted -s /dev/$Disk mkpart primary 0% 256MB
+		parted -s /dev/$Disk mkpart primary 256MB 5377MB
+		parted -s /dev/$Disk mkpart primary 5377MB 100%
+
+	else
+		parted -s /dev/$Disk mkpart primary 0% 1MB
+		parted -s /dev/$Disk mkpart primary 1MB 5041MB
+		parted -s /dev/$Disk mkpart primary 5042MB 100%
+	fi
+fi
+
+echo "Applying filesystems"
+if $efi; then
+	mkfs.fat -F 32 /dev/${Disk}1
+fi
+mkfs.ext4 /dev/${Disk}2
+mkfs.ext4 /dev/${Disk}3
+
+echo "mounting filesystem"
+mount -m /dev/${Disk}3 /mnt
+mount -m /dev/${Disk}2 /mnt/home
+
+if $efi; then
 	mount -m /dev/${Disk}1 /mnt/boot
 fi
 
@@ -64,6 +79,7 @@ if [ "$GUI" == true ]; then
 [1]: Cinnamon
 [2]: Mate
 [3]: Xfce4
+[4]: Gnome
 "
 	echo -n "Default [0]: "
 	read DE
@@ -75,11 +91,13 @@ if [ "$GUI" == true ]; then
 		pacstrap /mnt mate
 	elif [ "$DE" == "3" ]; then
 		pacstrap /mnt xfce4
+	elif [ "$DE" == "4" ]; then
+		pacstrap /mnt gnome
 	fi
 fi
 
 if [ "$Internet" == true ]; then
-	pacstrap /mnt networkmanager firefox
+	pacstrap /mnt firefox networkmanager
 fi
 
 echo "Generating fstab file"
@@ -102,28 +120,20 @@ fi
 echo $Arch >> /mnt/etc/hostname
 
 echo "What is your user's name?"
+echo -n "Username: "
 read Name
 arch-chroot /mnt /bin/bash -c "useradd -m $Name"
 
 
 echo "Enter in ${Name}'s password"
-arch-chroot /mnt /bin/bash -c "passwd $Name"
+echo -n "Passowrd: "
+read Password
+
+arch-chroot /mnt /bin/bash -c "echo -e "$Password\n$Password" | passwd $Name"
 
 if [ "$Network" == true ]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
-	
-	if [ ! $NetworkPassword] || [ ! $NetworkName]; then
-		echo "Enter network name"
-		echo -n "Network-Name: "
-		read NetworkName
-
-		echo "Enter network password"
-		echo -n "Network-Password: "
-	fi
-		arch-crhoot /mnt /bin/bash -c "nmcli device wifi connect $NetworkName password $NetworkPassword >> /dev/null"
-	
-	echo "Wifi sucessfully added"
 fi
 
 
@@ -140,10 +150,14 @@ arch-chroot /mnt /bin/bash -c "mkinitcpio -P"
 echo "Installing Grub"
 pacstrap /mnt grub
 
-echo "Installing grub for efi"
-pacstrap /mnt efibootmgr
-
-arch-chroot /mnt grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
-arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+if $efi; then
+	echo "Installing grub for efi"
+	pacstrap /mnt efibootmgr
+	arch-chroot /mnt grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
+	arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+else
+	echo "Installing grub for bios"
+	arch-chroot /mnt grub-install --target=i386-pc /dev/$Disk
+fi
 
 echo "Archlinux sucessfully installed"
