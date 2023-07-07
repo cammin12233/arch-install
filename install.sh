@@ -4,6 +4,7 @@ timedatectl
 
 if [ -d "/sys/firmware/efivars" ]; then
 	efi=true
+	echo "Bios detected"
 fi
 
 echo "Network Connected"
@@ -24,15 +25,18 @@ if true; then
 
 	else
 		parted -s /dev/$Disk mkpart primary 0% 1MB
+		parted -s /dev/$Dosl set 1 bios_grub
 		parted -s /dev/$Disk mkpart primary 1MB 5041MB
 		parted -s /dev/$Disk mkpart primary 5042MB 100%
 	fi
 fi
 
 echo "Applying filesystems"
-if $efi; then
+
+if [ $efi ]; then
 	mkfs.fat -F 32 /dev/${Disk}1
 fi
+
 mkfs.ext4 /dev/${Disk}2
 mkfs.ext4 /dev/${Disk}3
 
@@ -40,7 +44,7 @@ echo "mounting filesystem"
 mount -m /dev/${Disk}3 /mnt
 mount -m /dev/${Disk}2 /mnt/home
 
-if $efi; then
+if [ $efi == true ]; then
 	mount -m /dev/${Disk}1 /mnt/boot
 fi
 
@@ -150,7 +154,7 @@ arch-chroot /mnt /bin/bash -c "mkinitcpio -P"
 echo "Installing Grub"
 pacstrap /mnt grub
 
-if $efi; then
+if [ $efi == true ]; then
 	echo "Installing grub for efi"
 	pacstrap /mnt efibootmgr
 	arch-chroot /mnt grub-install --target=x86_64-efi --bootloader-id=Arch --efi-directory=/boot
