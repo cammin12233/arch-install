@@ -14,21 +14,19 @@ read Disk
 
 echo "Paritioning"
 
-if true; then
-	wipefs -a /dev/$Disk
-	parted -s /dev/$Disk mklabel gpt
+wipefs -a /dev/$Disk
+parted -s /dev/$Disk mklabel gpt
 
-	if $efi; then
-		parted -s /dev/$Disk mkpart primary 0% 256MB
-		parted -s /dev/$Disk mkpart primary 256MB 5377MB
-		parted -s /dev/$Disk mkpart primary 5377MB 100%
+if $efi; then
+	parted -s /dev/$Disk mkpart primary 0% 256MB
+	parted -s /dev/$Disk mkpart primary 256MB 5377MB
+	parted -s /dev/$Disk mkpart primary 5377MB 100%
 
-	else
-		parted -s /dev/$Disk mkpart primary 0% 1MB
-		parted -s /dev/$Dosl set 1 bios_grub
-		parted -s /dev/$Disk mkpart primary 1MB 5041MB
-		parted -s /dev/$Disk mkpart primary 5042MB 100%
-	fi
+else
+	parted -s /dev/$Disk mkpart primary 0% 1MB
+	parted -s /dev/$Dosl set 1 bios_grub
+	parted -s /dev/$Disk mkpart primary 1MB 5041MB
+	parted -s /dev/$Disk mkpart primary 5042MB 100%
 fi
 
 echo "Applying filesystems"
@@ -54,13 +52,14 @@ echo "
 [1]: Base + Gui
 [2]: Base + internet
 [3]: Base
-" 
+"
+
 echo -n "Default [0]: "
 read InstallationType
 
 pacstrap /mnt base linux linux-firmware bash-completion base-devel vim
 
-if [ "$InstallationType" == "" ] || [ "$InstallationType" == 0 ]; then
+if [ "$InstallationType" == "" ] || [ "$InstallationType" == "0" ]; then
 	GUI=true
 	Internet=true
 
@@ -75,7 +74,7 @@ elif [ "$InstallationType" == "3" ]; then
 	Internet=false
 fi
 
-if [ "$GUI" == true ]; then
+if [ $GUI ]; then
 	pacstrap /mnt lightdm lightdm-gtk-greeter
 	echo "What Desktop Enviroment do you want?"
 	echo "
@@ -87,20 +86,20 @@ if [ "$GUI" == true ]; then
 "
 	echo -n "Default [0]: "
 	read DE
-	if [ "$DE" == "0" ] || [ "$DE" == "" ]; then
+	if [ $DE == "0" ] || [ "$DE" == "" ]; then
 		pacstrap /mnt plasma
-	elif [ "$DE" == "1" ]; then
+	elif [ $DE == "1" ]; then
 		pacstrap /mnt cinnamon
-	elif [ "$DE" == "2" ]; then
+	elif [ $DE == "2" ]; then
 		pacstrap /mnt mate
-	elif [ "$DE" == "3" ]; then
+	elif [ $DE == "3" ]; then
 		pacstrap /mnt xfce4
-	elif [ "$DE" == "4" ]; then
+	elif [ $DE == "4" ]; then
 		pacstrap /mnt gnome
 	fi
 fi
 
-if [ "$Internet" == true ]; then
+if [ $Internet ]; then
 	pacstrap /mnt firefox networkmanager
 fi
 
@@ -117,7 +116,7 @@ arch-chroot /mnt /bin/bash -c "hwclock --systohc"
 echo "What do you want your computer's name to be?"
 echo -n "Default [Arch]: "
 read Arch
-if [ "$Arch" == "" ]; then
+if [ $Arch == "" ]; then
 	Arch="Arch"
 fi
 
@@ -135,13 +134,13 @@ read Password
 
 arch-chroot /mnt /bin/bash -c "echo -e "$Password\n$Password" | passwd $Name"
 
-if [ "$Network" == true ]; then
+if [ $Network ]; then
 	echo "Configuring for Networking"
 	arch-chroot /mnt /bin/bash -c "systemctl enable NetworkManager.service"
 fi
 
 
-if [ "$GUI" == true ]; then
+if [ $GUI ]; then
 	echo "Enabling GUI"
 	arch-chroot /mnt /bin/bash -c "systemctl enable lightdm.service"
 fi
