@@ -17,7 +17,7 @@ echo "Paritioning"
 wipefs -a /dev/$Disk
 parted -s /dev/$Disk mklabel gpt
 
-if $efi; then
+if [ $efi ]; then
 	parted -s /dev/$Disk mkpart primary 0% 256MB
 	parted -s /dev/$Disk mkpart primary 256MB 5377MB
 	parted -s /dev/$Disk mkpart primary 5377MB 100%
